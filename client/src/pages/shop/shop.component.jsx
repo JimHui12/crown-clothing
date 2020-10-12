@@ -1,11 +1,13 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, lazy, Suspense } from 'react';
 import { Route } from 'react-router-dom';
 import { connect } from 'react-redux';
 
-import CollectionsOverviewContainer from '../../components/collections-overview/collections-overview.container';
-import CollectionPageContainer from '../collection/collection.container';
+import Spinner from '../../components/spinner/spinner.component';
 
 import { fetchCollectionsStart } from '../../redux/shop/shop.actions';
+
+const CollectionsOverviewContainer = lazy(() => import ('../../components/collections-overview/collections-overview.container'));
+const CollectionPageContainer = lazy(() => import('../collection/collection.container'));
 
 const ShopPage = ({ fetchCollectionsStart, match }) => {
 
@@ -13,33 +15,12 @@ const ShopPage = ({ fetchCollectionsStart, match }) => {
         fetchCollectionsStart();
     }, [fetchCollectionsStart]);
 
-        // const { updateCollections } = this.props;
-        // const collectionRef = firestore.collection('collections');
-
-
-        // //1. firebase store snapshot
-        // // this.unsubscribeFromSnapshot = collectionRef.onSnapshot(async snapshot => {
-        // //     const collectionsMap = convertCollectionsSnapshotToMap(snapshot);
-        // //     updateCollections(collectionsMap);
-        // //     this.setState({ loading: false });
-        // // });
-
-        // //2. promise
-        // collectionRef.get().then(snapshot => {
-        //     const collectionsMap = convertCollectionsSnapshotToMap(snapshot);
-        //     updateCollections(collectionsMap);
-        //     this.setState({ loading: false });
-        // });
-
-        //3. fetch
-        // fetch('https://firestore.googleapis.com/v1/projects/crown-db-e0e73/databases/(default)/documents/collections')
-        // .then(response => response.json())
-        // .then(collections => console.log(collections));
-
     return (
         <div className="shop-page">
-            <Route exact path={`${match.path}`} component={CollectionsOverviewContainer}  />
-            <Route path={`${match.path}/:collectionId`} component={CollectionPageContainer} />
+            <Suspense fallback={<Spinner />}>
+                <Route exact path={`${match.path}`} component={CollectionsOverviewContainer}  />
+                <Route path={`${match.path}/:collectionId`} component={CollectionPageContainer} />
+            </Suspense>
         </div>
     );
 };
